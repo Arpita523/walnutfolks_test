@@ -1,7 +1,16 @@
+// @ts-ignore: Native URL import resolved by Deno Edge Runtime
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 declare const EdgeRuntime: {
   waitUntil: (promise: Promise<unknown>) => void
+}
+
+// Ambient type declaration for IDE TypeScript language servers
+declare const Deno: {
+  env: {
+    get: (key: string) => string | undefined
+  }
+  serve: (handler: (req: Request) => Promise<Response> | Response) => void
 }
 
 // CORS Headers for cross-origin client requests
@@ -87,7 +96,7 @@ Deno.serve(async (req) => {
 
       // Background Processing (Simulate 30-second delay using EdgeRuntime.waitUntil)
       // Asynchronously updates status from PROCESSING to PROCESSED
-      EdgeRuntime.waitUntil((async () => {
+      const backgroundProcessing = (async () => {
         try {
           console.log(`[Worker] Starting 30s background processing for: ${transaction_id}`)
           await new Promise((resolve) => setTimeout(resolve, 30000))
@@ -110,7 +119,11 @@ Deno.serve(async (req) => {
         } catch (workerErr) {
           console.error(`[Worker Exception] ${transaction_id}:`, workerErr)
         }
-      })())
+      })()
+
+      if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime?.waitUntil) {
+        EdgeRuntime.waitUntil(backgroundProcessing)
+      }
 
       // Immediate 202 acknowledgment
       return json({
