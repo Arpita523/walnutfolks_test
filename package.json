@@ -1,0 +1,12 @@
+{
+  "name": "walnutfolks-backend-assessment",
+  "version": "1.0.0",
+  "description": "Transaction Webhook Ingestion & Background Processing Service",
+  "main": "supabase/functions/api/index.ts",
+  "scripts": {
+    "test": "node test-webhook.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1"
+  }
+}
