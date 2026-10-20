@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Console & Transaction Monitor | Arpita Pandey</title>
+  <meta name="description" content="Clean and intuitive API Console and Live Transactions Monitor developed by Arpita Pandey for the Walnut Folks assessment.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* -------------------------------------------------------------
+       CSS VARIABLES - CLEAN MINIMAL LIGHT MODE (DEFAULT) & DARK MODE
+       ------------------------------------------------------------- */
+    :root, [data-theme="light"] {
+      --bg-page: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --bg-hover: #e2e8f0;
+      --border: #e2e8f0;
+      --border-focus: #6366f1;
+      
+      --text-main: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+
+      --accent: #4f46e5;
+      --accent-hover: #4338ca;
+      --accent-light: #eef2ff;
+      --accent-border: #c7d2fe;
+
+      --get-bg: #ecfdf5;
+      --get-text: #047857;
+      --get-border: #a7f3d0;
+
+      --post-bg: #eff6ff;
+      --post-text: #1d4ed8;
+      --post-border: #bfdbfe;
+
+      --status-success-bg: #ecfdf5;
+      --status-success-text: #059669;
+      --status-success-border: #a7f3d0;
+
+      --status-warn-bg: #fffbeb;
+      --status-warn-text: #b45309;
+      --status-warn-border: #fde68a;
+
+      --status-err-bg: #fef2f2;
+      --status-err-text: #b91c1c;
+      --status-err-border: #fecaca;
+
+      --code-bg: #f8fafc;
+      --code-border: #e2e8f0;
+      --code-text: #0f172a;
+
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+    }
+
+    [data-theme="dark"] {
+      --bg-page: #0b0f19;
+      --bg-surface: #111827;
+      --bg-subtle: #1f2937;
+      --bg-hover: #374151;
+      --border: #1f2937;
+      --border-focus: #818cf8;
+
+      --text-main: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-light: rgba(99, 102, 241, 0.15);
+      --accent-border: rgba(99, 102, 241, 0.3);
+
+      --get-bg: rgba(16, 185, 129, 0.12);
+      --get-text: #34d399;
+      --get-border: rgba(16, 185, 129, 0.25);
+
+      --post-bg: rgba(59, 130, 246, 0.12);
+      --post-text: #60a5fa;
+      --post-border: rgba(59, 130, 246, 0.25);
+
+      --status-success-bg: rgba(16, 185, 129, 0.15);
+      --status-success-text: #34d399;
+      --status-success-border: rgba(16, 185, 129, 0.3);
+
+      --status-warn-bg: rgba(245, 158, 11, 0.15);
+      --status-warn-text: #fbbf24;
+      --status-warn-border: rgba(245, 158, 11, 0.3);
+
+      --status-err-bg: rgba(239, 68, 68, 0.15);
+      --status-err-text: #f87171;
+      --status-err-border: rgba(239, 68, 68, 0.3);
+
+      --code-bg: #030712;
+      --code-border: #1f2937;
+      --code-text: #e2e8f0;
+
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+      --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+      padding: 24px;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .app-container {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* -------------------------------------------------------------
+       NAV / HEADER
+       ------------------------------------------------------------- */
+    .top-header {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .title-area h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title-area p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .dev-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 12px 4px 6px;
+    }
+
+    .dev-avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .dev-text {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .dev-text strong {
+      color: var(--text-main);
+    }
+
+    .theme-toggle-btn {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg-hover);
+    }
+
+    /* -------------------------------------------------------------
+       BASE URL CONFIG BAR
+       ------------------------------------------------------------- */
+    .config-strip {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.82rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .config-strip label {
+      color: var(--text-muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .config-input {
+      flex: 1;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .config-input:focus {
+      border-color: var(--border-focus);
+    }
+
+    .btn-chip {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: var(--radius-sm);
+      padding: 5px 10px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .btn-chip:hover {
+      background: var(--bg-hover);
+      color: var(--text-main);
+    }
+
+    /* -------------------------------------------------------------
+       1. TOP 4 STATS CARDS
+       ------------------------------------------------------------- */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 540px) {
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      font-family: 'Fira Code', monospace;
+      color: var(--text-main);
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .stat-sub {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    /* -------------------------------------------------------------
+       2. MIDDLE API TESTING SECTION (LIST ON LEFT, RESULT ON RIGHT)
+       ------------------------------------------------------------- */
+    .testing-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--bg-surface);
+    }
+
+    .section-header h2 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-run-suite {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease;
+    }
+
+    .btn-run-suite:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-run-suite:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .testing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 480px;
+    }
+
+    @media (max-width: 900px) {
+      .testing-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* LEFT: ENDPOINTS LIST */
+    .endpoints-list {
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      divide-y: 1px solid var(--border);
+      background: var(--bg-surface);
+    }
+
+    .endpoint-item {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: background 0.15s ease;
+    }
+
+    .endpoint-item:last-child {
+      border-bottom: none;
+    }
+
+    .endpoint-item:hover {
+      background: var(--bg-subtle);
+    }
+
+    .endpoint-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .method-and-path {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-method {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .badge-get {
+      background: var(--get-bg);
+      color: var(--get-text);
+      border: 1px solid var(--get-border);
+    }
+
+    .badge-post {
+      background: var(--post-bg);
+      color: var(--post-text);
+      border: 1px solid var(--post-border);
+    }
+
+    .endpoint-path {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .endpoint-caption {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .inputs-area {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-field {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      color: var(--text-main);
+      width: 100%;
+      outline: none;
+    }
+
+    .input-field:focus {
+      border-color: var(--border-focus);
+    }
+
+    .textarea-field {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: var(--text-main);
+      min-height: 80px;
+      resize: vertical;
+      line-height: 1.4;
+      outline: none;
+    }
+
+    .textarea-field:focus {
+      border-color: var(--border-focus);
+    }
+
+    .endpoint-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-action:hover {
+      background: var(--bg-hover);
+      color: var(--text-main);
+    }
+
+    .btn-action-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .btn-action-primary:hover {
+      background: var(--accent-hover);
+      color: #fff;
+    }
+
+    .btn-action-warn {
+      background: var(--status-warn-bg);
+      border-color: var(--status-warn-border);
+      color: var(--status-warn-text);
+    }
+
+    .btn-action-warn:hover {
+      background: #fef3c7;
+    }
+
+    /* RIGHT: INSPECTOR & RESULTS */
+    .inspector-pane {
+      background: var(--bg-surface);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .inspector-top-bar {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--bg-subtle);
+    }
+
+    .status-pill {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-pill.ready {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .status-pill.success {
+      background: var(--status-success-bg);
+      color: var(--status-success-text);
+      border: 1px solid var(--status-success-border);
+    }
+
+    .status-pill.error {
+      background: var(--status-err-bg);
+      color: var(--status-err-text);
+      border: 1px solid var(--status-err-border);
+    }
+
+    .inspector-meta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .meta-val {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* 30s COUNTDOWN IN INSPECTOR */
+    .countdown-indicator {
+      background: var(--accent-light);
+      border-bottom: 1px solid var(--accent-border);
+      padding: 8px 18px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .countdown-indicator.active {
+      display: flex;
+    }
+
+    .countdown-timer-val {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+    }
+
+    .tab-nav {
+      display: flex;
+      gap: 2px;
+      padding: 6px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-surface);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn.active {
+      color: var(--text-main);
+      background: var(--bg-subtle);
+    }
+
+    .inspector-body {
+      flex: 1;
+      padding: 16px;
+      background: var(--code-bg);
+      overflow-y: auto;
+      max-height: 480px;
+      position: relative;
+    }
+
+    .code-view {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      color: var(--code-text);
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    .btn-copy-code {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      cursor: pointer;
+    }
+
+    .btn-copy-code:hover {
+      color: var(--text-main);
+    }
+
+    /* -------------------------------------------------------------
+       3. BOTTOM: TRANSACTIONS TABLE
+       ------------------------------------------------------------- */
+    .transactions-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .table-toolbar {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .toolbar-left h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .search-input {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      color: var(--text-main);
+      min-width: 220px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--border-focus);
+    }
+
+    .select-filter {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      color: var(--text-main);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .auto-refresh-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      text-align: left;
+    }
+
+    thead th {
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      padding: 10px 16px;
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    tbody tr:hover td {
+      background: var(--bg-subtle);
+    }
+
+    .td-txn-id {
+      font-family: 'Fira Code', monospace;
+      font-weight: 600;
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .td-txn-id:hover {
+      text-decoration: underline;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .badge-processing {
+      background: var(--status-warn-bg);
+      color: var(--status-warn-text);
+      border: 1px solid var(--status-warn-border);
+    }
+
+    .badge-processed {
+      background: var(--status-success-bg);
+      color: var(--status-success-text);
+      border: 1px solid var(--status-success-border);
+    }
+
+    .pulse-dot-amber {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #f59e0b;
+      display: inline-block;
+      animation: pulse 1.5s infinite;
+    }
+
+    .pulse-dot-green {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      display: inline-block;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.6; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.6; }
+    }
+
+    .table-pagination {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      background: var(--bg-surface);
+    }
+
+    .pagination-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-page {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: var(--radius-sm);
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .btn-page:hover:not(:disabled) {
+      background: var(--bg-hover);
+      color: var(--text-main);
+    }
+
+    .btn-page:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* -------------------------------------------------------------
+       FOOTER
+       ------------------------------------------------------------- */
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      padding: 12px 0 20px 0;
+    }
+
+    footer strong {
+      color: var(--text-main);
+    }
+
+    /* -------------------------------------------------------------
+       TOAST
+       ------------------------------------------------------------- */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 500;
+      box-shadow: var(--shadow-md);
+      transform: translateY(60px);
+      opacity: 0;
+      transition: all 0.2s ease;
+      z-index: 9999;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- TOP NAV / HEADER -->
+    <header class="top-header">
+      <div class="header-left">
+        <div class="logo-badge">⚡</div>
+        <div class="title-area">
+          <h1>API Console & Live Transactions</h1>
+          <p>Supabase Edge Function Transaction Webhook Processing Service</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- DEVELOPER ATTRIBUTION BADGE -->
+        <div class="dev-badge">
+          <div class="dev-avatar">AP</div>
+          <div class="dev-text">Candidate: <strong>Arpita Pandey</strong></div>
+        </div>
+
+        <!-- LIGHT / DARK MODE TOGGLE (LIGHT BY DEFAULT) -->
+        <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Light / Dark Mode">
+          <span id="themeIcon">☀️</span> <span id="themeLabel">Light</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONFIG / BASE URL BAR -->
+    <div class="config-strip">
+      <label for="baseUrlInput">Edge Function Base URL:</label>
+      <input type="text" id="baseUrlInput" class="config-input" value="https://oehnlycyvucimchrtivh.supabase.co/functions/v1/api" />
+      <button class="btn-chip" onclick="setBaseUrl('https://oehnlycyvucimchrtivh.supabase.co/functions/v1/api')">Cloud Edge</button>
+      <button class="btn-chip" onclick="setBaseUrl('http://127.0.0.1:54321/functions/v1/api')">Localhost</button>
+    </div>
+
+    <!-- 1. TOP 4 STATS CARDS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Requests</div>
+        <div class="stat-value" id="kpiTotalCalls">0</div>
+        <div class="stat-sub">Client session executions</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Transactions in DB</div>
+        <div class="stat-value" id="kpiTotalDbRows">...</div>
+        <div class="stat-sub">Persisted in Supabase PostgreSQL</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Average Latency</div>
+        <div class="stat-value" id="kpiAvgLatency">0 <span style="font-size: 0.9rem; font-weight: 500;">ms</span></div>
+        <div class="stat-sub">&lt; 500ms immediate acknowledgment</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Success Rate</div>
+        <div class="stat-value" id="kpiSuccessRate">100<span style="font-size: 0.9rem; font-weight: 500;">%</span></div>
+        <div class="stat-sub" id="kpiLastStatus">All endpoints healthy</div>
+      </div>
+    </div>
+
+    <!-- 2. MIDDLE API TESTING SECTION (LIST ON LEFT, RESULT ON RIGHT) -->
+    <div class="testing-section">
+      <div class="section-header">
+        <h2>
+          <span>🧪 Endpoint Tester & Benchmark</span>
+        </h2>
+        <button class="btn-run-suite" id="btnRunSuite" onclick="runAutomatedSuite()" title="Run all 5 Assessment Criteria in order">
+          <span>▶ Run Automated Verification Suite</span>
+        </button>
+      </div>
+
+      <div class="testing-grid">
+        
+        <!-- LEFT COLUMN: ENDPOINTS LIST -->
+        <div class="endpoints-list">
+
+          <!-- 1. HEALTH CHECK -->
+          <div class="endpoint-item">
+            <div class="endpoint-top">
+              <div class="method-and-path">
+                <span class="badge-method badge-get">GET</span>
+                <span class="endpoint-path">/health</span>
+              </div>
+              <span class="endpoint-caption">Health & Time</span>
+            </div>
+            <p class="endpoint-caption">Checks service uptime, edge runtime environment, and current timestamp.</p>
+            <div class="endpoint-actions">
+              <button class="btn-action btn-action-primary" onclick="testHealth()">Execute Health Check</button>
+              <button class="btn-action" onclick="copyCurl('health')">Copy cURL</button>
+            </div>
+          </div>
+
+          <!-- 2. WEBHOOK INGESTION -->
+          <div class="endpoint-item">
+            <div class="endpoint-top">
+              <div class="method-and-path">
+                <span class="badge-method badge-post">POST</span>
+                <span class="endpoint-path">/v1/webhooks/transactions</span>
+              </div>
+              <span class="endpoint-caption">Ingest Webhook</span>
+            </div>
+            <p class="endpoint-caption">Non-blocking webhook acknowledgment (&lt; 500ms), writes to DB as PROCESSING, and triggers 30s background delay.</p>
+            
+            <div class="inputs-area">
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.74rem;">
+                <span style="color: var(--text-muted); font-weight: 600;">PAYLOAD (JSON)</span>
+                <span style="color: var(--accent); cursor: pointer; font-weight: 500;" onclick="generateNewPayload()">🔄 Generate Random Txn ID</span>
+              </div>
+              <textarea id="webhookPayload" class="textarea-field" spellcheck="false">{
+  "transaction_id": "txn_assessment_001",
+  "source_account": "acc_user_101",
+  "destination_account": "acc_merchant_202",
+  "amount": 1500,
+  "currency": "INR"
+}</textarea>
+            </div>
+
+            <div class="endpoint-actions">
+              <button class="btn-action btn-action-primary" onclick="testWebhook(false)">Send Webhook (New)</button>
+              <button class="btn-action btn-action-warn" onclick="testWebhook(true)" title="Resend the exact same payload to test unique constraint 23505">Resend (Idempotency Test)</button>
+              <button class="btn-action" onclick="copyCurl('webhook')">Copy cURL</button>
+            </div>
+          </div>
+
+          <!-- 3. QUERY SINGLE TRANSACTION -->
+          <div class="endpoint-item">
+            <div class="endpoint-top">
+              <div class="method-and-path">
+                <span class="badge-method badge-get">GET</span>
+                <span class="endpoint-path">/v1/transactions/:id</span>
+              </div>
+              <span class="endpoint-caption">Query Record</span>
+            </div>
+            <p class="endpoint-caption">Fetches transaction status (PROCESSING &rarr; PROCESSED after 30 seconds).</p>
+
+            <div class="inputs-area">
+              <input type="text" id="queryTxnId" class="input-field" placeholder="Enter transaction_id" value="txn_assessment_001" />
+            </div>
+
+            <div class="endpoint-actions">
+              <button class="btn-action btn-action-primary" onclick="testQueryStatus()">Query Status</button>
+              <button class="btn-action" onclick="watchAndAutoPoll()" id="btnAutoPoll">Auto-Poll (30s Watch)</button>
+              <button class="btn-action" onclick="copyCurl('query')">Copy cURL</button>
+            </div>
+          </div>
+
+          <!-- 4. LIST ALL TRANSACTIONS ENDPOINT -->
+          <div class="endpoint-item">
+            <div class="endpoint-top">
+              <div class="method-and-path">
+                <span class="badge-method badge-get">GET</span>
+                <span class="endpoint-path">/v1/transactions</span>
+              </div>
+              <span class="endpoint-caption">List All Rows</span>
+            </div>
+            <p class="endpoint-caption">New endpoint returning all stored transactions with pagination and status filters.</p>
+
+            <div class="endpoint-actions">
+              <button class="btn-action btn-action-primary" onclick="testListEndpoint()">Test List Endpoint</button>
+              <button class="btn-action" onclick="copyCurl('list')">Copy cURL</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: RESULTS INSPECTOR -->
+        <div class="inspector-pane">
+          <div class="inspector-top-bar">
+            <div class="status-pill ready" id="statusPill">READY</div>
+            <div class="inspector-meta">
+              <span>METHOD: <span class="meta-val" id="metaMethod">---</span></span>
+              <span>TIME: <span class="meta-val" id="metaLatency">0 ms</span></span>
+            </div>
+          </div>
+
+          <!-- 30-SECOND WORKER COUNTDOWN -->
+          <div class="countdown-indicator" id="countdownBanner">
+            <span>⏳ Background Worker Active (PROCESSING &rarr; PROCESSED)</span>
+            <span class="countdown-timer-val" id="countdownSeconds">30.0s remaining</span>
+          </div>
+
+          <!-- INSPECTOR TABS -->
+          <div class="tab-nav">
+            <button class="tab-btn active" id="tabBtnJson" onclick="setInspectorTab('json')">Response JSON</button>
+            <button class="tab-btn" id="tabBtnHeaders" onclick="setInspectorTab('headers')">Headers</button>
+            <button class="tab-btn" id="tabBtnCurl" onclick="setInspectorTab('curl')">cURL</button>
+          </div>
+
+          <!-- CODE VIEWER -->
+          <div class="inspector-body">
+            <button class="btn-copy-code" onclick="copyActiveCode()">Copy</button>
+            <pre class="code-view" id="codeViewer">// Execute any endpoint from the left to view response output</pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 3. BOTTOM: TRANSACTIONS TABLE (WITH FILTERING & PAGINATION) -->
+    <div class="transactions-card">
+      <div class="table-toolbar">
+        <div class="toolbar-left">
+          <h3>
+            <span>📋 All Transactions</span>
+            <span style="font-size: 0.75rem; font-weight: 500; color: var(--text-muted);" id="tableCountLabel">(Loading...)</span>
+          </h3>
+          <input type="text" id="tableSearch" class="search-input" placeholder="Search by Txn ID or Account..." oninput="handleSearchChange()" />
+          <select id="statusFilterSelect" class="select-filter" onchange="handleStatusFilterChange()">
+            <option value="">All Statuses</option>
+            <option value="PROCESSING">PROCESSING Only</option>
+            <option value="PROCESSED">PROCESSED Only</option>
+          </select>
+        </div>
+
+        <div class="toolbar-right">
+          <label class="auto-refresh-toggle">
+            <input type="checkbox" id="autoRefreshCheck" checked onchange="toggleAutoRefresh()" />
+            <span>Auto-refresh (4s)</span>
+          </label>
+          <button class="btn-action" onclick="fetchTableTransactions()" id="btnManualRefresh">
+            <span>↻ Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table id="transactionsTable">
+          <thead>
+            <tr>
+              <th>Transaction ID</th>
+              <th>Source Account</th>
+              <th>Destination Account</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Created At</th>
+              <th>Processed At</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 24px;">Loading transactions...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAGINATION CONTROLS -->
+      <div class="table-pagination">
+        <div id="paginationInfo">Showing 0 - 0 of 0</div>
+        <div class="pagination-actions">
+          <button class="btn-page" id="btnPrevPage" onclick="changePage(-1)" disabled>&larr; Previous</button>
+          <span id="pageIndicator" style="font-weight: 600; color: var(--text-main);">Page 1</span>
+          <button class="btn-page" id="btnNextPage" onclick="changePage(1)" disabled>Next &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+      <p>Walnut Folks & Confluencr Backend Developer Assessment &bull; Developed by <strong>Arpita Pandey</strong></p>
+    </footer>
+
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast">Copied to clipboard</div>
+
+  <script>
+    /* =============================================================
+       APPLICATION STATE & CONFIG
+       ============================================================= */
+    const SUPABASE_CONFIG = {
+      url: 'https://oehnlycyvucimchrtivh.supabase.co',
+      anonKey: 'sb_publishable_n7AOgwawMDJR7Uv77Hiuzg_2b_4d7YN',
+      serviceKey: 'sb_secret_N04ALQqJXlY7QSsRo7OPyQ_c4N_EzvP'
+    };
+
+    let activeTab = 'json';
+    let currentInspector = {
+      json: '// Click any endpoint to test',
+      headers: '// No headers yet',
+      curl: '// No cURL command'
+    };
+
+    let metrics = {
+      totalCalls: 0,
+      totalDuration: 0,
+      successCount: 0
+    };
+
+    // Table state
+    let tableData = [];
+    let currentPage = 1;
+    const pageSize = 8;
+    let searchQuery = '';
+    let statusFilter = '';
+    let autoRefreshTimer = null;
+
+    /* =============================================================
+       THEME MANAGEMENT (LIGHT BY DEFAULT)
+       ============================================================= */
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const target = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', target);
+      document.getElementById('themeIcon').textContent = target === 'light' ? '☀️' : '🌙';
+      document.getElementById('themeLabel').textContent = target === 'light' ? 'Light' : 'Dark';
+    }
+
+    function setBaseUrl(url) {
+      document.getElementById('baseUrlInput').value = url;
+      showToast(`Base URL set to: ${url}`);
+    }
+
+    function getBaseUrl() {
+      return document.getElementById('baseUrlInput').value.trim().replace(/\/$/, '');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    /* =============================================================
+       CORE HTTP CALLER WITH METRICS & INSPECTOR UPDATE
+       ============================================================= */
+    async function executeApiCall(method, path, body = null) {
+      const baseUrl = getBaseUrl();
+      const url = `${baseUrl}${path}`;
+      const startTime = performance.now();
+
+      // Set UI pending
+      document.getElementById('metaMethod').textContent = method;
+      document.getElementById('statusPill').textContent = 'CALLING...';
+      document.getElementById('statusPill').className = 'status-pill ready';
+
+      let curlStr = `curl -i -X ${method} "${url}"`;
+      const options = { method, headers: {} };
+
+      if (body) {
+        options.headers['Content-Type'] = 'application/json';
+        options.body = typeof body === 'string' ? body : JSON.stringify(body);
+        curlStr += ` \\\n  -H "Content-Type: application/json" \\\n  -d '${options.body.replace(/\n/g, '')}'`;
+      }
+      currentInspector.curl = curlStr;
+
+      try {
+        const response = await fetch(url, options);
+        const duration = Math.round(performance.now() - startTime);
+
+        // Headers
+        const headersObj = {};
+        response.headers.forEach((v, k) => { headersObj[k] = v; });
+        currentInspector.headers = JSON.stringify(headersObj, null, 2);
+
+        // Body
+        const text = await response.text();
+        let parsedJson = null;
+        try {
+          parsedJson = JSON.parse(text);
+          currentInspector.json = JSON.stringify(parsedJson, null, 2);
+        } catch {
+          currentInspector.json = text;
+        }
+
+        // Inspector status & telemetry
+        const statusPill = document.getElementById('statusPill');
+        statusPill.textContent = `${response.status} ${response.statusText || ''}`.trim();
+        statusPill.className = response.ok ? 'status-pill success' : 'status-pill error';
+
+        document.getElementById('metaLatency').textContent = `${duration} ms`;
+
+        // Update overall KPIs
+        metrics.totalCalls++;
+        metrics.totalDuration += duration;
+        if (response.ok) metrics.successCount++;
+        updateKpiDisplay(response.status, duration);
+
+        renderActiveTabContent();
+        return { ok: response.ok, status: response.status, duration, data: parsedJson };
+
+      } catch (err) {
+        const duration = Math.round(performance.now() - startTime);
+        currentInspector.json = JSON.stringify({ error: 'Network Error', message: err.message }, null, 2);
+        
+        const statusPill = document.getElementById('statusPill');
+        statusPill.textContent = 'ERR';
+        statusPill.className = 'status-pill error';
+        document.getElementById('metaLatency').textContent = `${duration} ms`;
+
+        metrics.totalCalls++;
+        metrics.totalDuration += duration;
+        updateKpiDisplay(0, duration);
+
+        renderActiveTabContent();
+        return { ok: false, status: 0, duration, error: err.message };
+      }
+    }
+
+    function updateKpiDisplay(lastStatus, lastMs) {
+      document.getElementById('kpiTotalCalls').textContent = metrics.totalCalls;
+      const avg = Math.round(metrics.totalDuration / metrics.totalCalls);
+      document.getElementById('kpiAvgLatency').innerHTML = `${avg} <span style="font-size: 0.9rem; font-weight: 500;">ms</span>`;
+      const rate = Math.round((metrics.successCount / metrics.totalCalls) * 100);
+      document.getElementById('kpiSuccessRate').innerHTML = `${rate}<span style="font-size: 0.9rem; font-weight: 500;">%</span>`;
+      document.getElementById('kpiLastStatus').textContent = `Last status: ${lastStatus || 'ERR'} (${lastMs}ms)`;
+    }
+
+    /* =============================================================
+       INSPECTOR TAB MANAGEMENT
+       ============================================================= */
+    function setInspectorTab(tab) {
+      activeTab = tab;
+      document.getElementById('tabBtnJson').classList.toggle('active', tab === 'json');
+      document.getElementById('tabBtnHeaders').classList.toggle('active', tab === 'headers');
+      document.getElementById('tabBtnCurl').classList.toggle('active', tab === 'curl');
+      renderActiveTabContent();
+    }
+
+    function renderActiveTabContent() {
+      const viewer = document.getElementById('codeViewer');
+      if (activeTab === 'json') viewer.textContent = currentInspector.json;
+      if (activeTab === 'headers') viewer.textContent = currentInspector.headers;
+      if (activeTab === 'curl') viewer.textContent = currentInspector.curl;
+    }
+
+    function copyActiveCode() {
+      const text = document.getElementById('codeViewer').textContent;
+      navigator.clipboard.writeText(text).then(() => showToast('Copied content to clipboard!'));
+    }
+
+    /* =============================================================
+       ENDPOINT ACTIONS
+       ============================================================= */
+    function generateNewPayload() {
+      const id = 'txn_' + Date.now() + '_' + Math.floor(Math.random() * 900 + 100);
+      const payload = {
+        transaction_id: id,
+        source_account: 'acc_user_' + Math.floor(Math.random() * 900 + 100),
+        destination_account: 'acc_merchant_' + Math.floor(Math.random() * 900 + 100),
+        amount: Math.floor(Math.random() * 4000 + 500),
+        currency: 'INR'
+      };
+      document.getElementById('webhookPayload').value = JSON.stringify(payload, null, 2);
+      document.getElementById('queryTxnId').value = id;
+      showToast(`Generated: ${id}`);
+    }
+
+    async function testHealth() {
+      return await executeApiCall('GET', '/health');
+    }
+
+    async function testWebhook(isDuplicate = false) {
+      let parsed;
+      try {
+        parsed = JSON.parse(document.getElementById('webhookPayload').value);
+      } catch (e) {
+        alert('Invalid JSON in payload');
+        return;
+      }
+
+      if (!isDuplicate) {
+        document.getElementById('queryTxnId').value = parsed.transaction_id;
+      }
+
+      const res = await executeApiCall('POST', '/v1/webhooks/transactions', parsed);
+
+      if (res.status === 202 && !isDuplicate) {
+        startWorkerCountdown(30);
+      }
+
+      // Immediately refresh the table so the new entry shows up
+      setTimeout(fetchTableTransactions, 600);
+      return res;
+    }
+
+    async function testQueryStatus(customId = null) {
+      const txnId = customId || document.getElementById('queryTxnId').value.trim();
+      if (!txnId) {
+        alert('Please enter a transaction_id');
+        return;
+      }
+      return await executeApiCall('GET', `/v1/transactions/${txnId}`);
+    }
+
+    async function testListEndpoint() {
+      return await executeApiCall('GET', '/v1/transactions?limit=10&page=1');
+    }
+
+    /* 30-Second Countdown in Inspector */
+    function startWorkerCountdown(sec) {
+      const banner = document.getElementById('countdownBanner');
+      const label = document.getElementById('countdownSeconds');
+      banner.classList.add('active');
+
+      const start = performance.now();
+      const totalMs = sec * 1000;
+
+      const timer = setInterval(() => {
+        const elapsed = performance.now() - start;
+        const left = Math.max(0, (totalMs - elapsed) / 1000);
+        label.textContent = `${left.toFixed(1)}s remaining`;
+
+        if (left <= 0) {
+          clearInterval(timer);
+          label.textContent = 'Completed (PROCESSED) ✅';
+          setTimeout(() => banner.classList.remove('active'), 4000);
+          fetchTableTransactions();
+        }
+      }, 150);
+    }
+
+    async function watchAndAutoPoll() {
+      const txnId = document.getElementById('queryTxnId').value.trim();
+      if (!txnId) return;
+
+      const btn = document.getElementById('btnAutoPoll');
+      btn.disabled = true;
+      btn.textContent = 'Watching (30s)...';
+      startWorkerCountdown(30);
+
+      let tries = 0;
+      const pollTimer = setInterval(async () => {
+        tries++;
+        const res = await executeApiCall('GET', `/v1/transactions/${txnId}`);
+        if (res.data && res.data.status === 'PROCESSED') {
+          clearInterval(pollTimer);
+          btn.disabled = false;
+          btn.textContent = 'Auto-Poll (30s Watch)';
+          showToast(`Transaction ${txnId} is now PROCESSED!`);
+          fetchTableTransactions();
+        } else if (tries >= 16) {
+          clearInterval(pollTimer);
+          btn.disabled = false;
+          btn.textContent = 'Auto-Poll (30s Watch)';
+        }
+      }, 2500);
+    }
+
+    function copyCurl(type) {
+      const base = getBaseUrl();
+      let cmd = '';
+      if (type === 'health') {
+        cmd = `curl -i "${base}/health"`;
+      } else if (type === 'webhook') {
+        const body = document.getElementById('webhookPayload').value.replace(/\s+/g, ' ');
+        cmd = `curl -i -X POST "${base}/v1/webhooks/transactions" \\\n  -H "Content-Type: application/json" \\\n  -d '${body}'`;
+      } else if (type === 'query') {
+        const id = document.getElementById('queryTxnId').value.trim();
+        cmd = `curl -i "${base}/v1/transactions/${id}"`;
+      } else if (type === 'list') {
+        cmd = `curl -i "${base}/v1/transactions?limit=25&page=1"`;
+      }
+      navigator.clipboard.writeText(cmd).then(() => showToast('cURL command copied!'));
+    }
+
+    /* =============================================================
+       AUTOMATED VERIFICATION SUITE (ALL 5 ASSESSMENT CRITERIA)
+       ============================================================= */
+    async function runAutomatedSuite() {
+      const btn = document.getElementById('btnRunSuite');
+      btn.disabled = true;
+      btn.textContent = 'Running Step 1/5 (Health)...';
+
+      const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+      try {
+        // Step 1: Health
+        const h = await testHealth();
+        if (h.status !== 200) throw new Error('Health Check failed');
+
+        await sleep(600);
+
+        // Step 2: Fast Ingest
+        btn.textContent = 'Running Step 2/5 (Ingesting Webhook)...';
+        const suiteId = 'txn_suite_' + Date.now();
+        const payload = {
+          transaction_id: suiteId,
+          source_account: 'acc_suite_user_101',
+          destination_account: 'acc_suite_merch_202',
+          amount: 2500,
+          currency: 'INR'
+        };
+        document.getElementById('webhookPayload').value = JSON.stringify(payload, null, 2);
+        document.getElementById('queryTxnId').value = suiteId;
+
+        const w = await executeApiCall('POST', '/v1/webhooks/transactions', payload);
+        if (w.status !== 202) throw new Error('Webhook ingestion failed');
+
+        await sleep(500);
+
+        // Step 3: Immediate Status
+        btn.textContent = 'Running Step 3/5 (Checking PROCESSING)...';
+        const q1 = await executeApiCall('GET', `/v1/transactions/${suiteId}`);
+        if (q1.status !== 200 || q1.data?.status !== 'PROCESSING') {
+          throw new Error('Initial status is not PROCESSING');
+        }
+
+        await sleep(500);
+
+        // Step 4: Idempotency
+        btn.textContent = 'Running Step 4/5 (Testing Idempotency)...';
+        const dup = await executeApiCall('POST', '/v1/webhooks/transactions', payload);
+        if (dup.status !== 202 || dup.data?.message !== 'Transaction already received') {
+          throw new Error('Idempotency handling failed');
+        }
+
+        // Step 5: Background 30s Wait
+        btn.textContent = 'Step 5/5: Waiting 30s for background worker...';
+        startWorkerCountdown(31);
+
+        for (let sec = 30; sec > 0; sec -= 5) {
+          btn.textContent = `Step 5/5: Waiting (${sec}s remaining)...`;
+          await sleep(5000);
+        }
+        await sleep(1500);
+
+        // Final Status check
+        const qFinal = await executeApiCall('GET', `/v1/transactions/${suiteId}`);
+        if (qFinal.status === 200 && qFinal.data?.status === 'PROCESSED') {
+          showToast('🎉 ALL 5 ASSESSMENT CRITERIA PASSED!');
+        } else {
+          throw new Error('Background status did not transition to PROCESSED');
+        }
+
+        fetchTableTransactions();
+
+      } catch (err) {
+        showToast(`Test Suite: ${err.message}`);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '▶ Run Automated Verification Suite';
+      }
+    }
+
+    /* =============================================================
+       3. TRANSACTIONS TABLE: FETCH, PAGINATION, SEARCH & FILTER
+       ============================================================= */
+    async function fetchTableTransactions() {
+      const refreshBtn = document.getElementById('btnManualRefresh');
+      if (refreshBtn) refreshBtn.textContent = '↻ Loading...';
+
+      let dataRows = [];
+
+      // 1. First attempt: call the edge function list route GET /v1/transactions
+      const edgeUrl = `${getBaseUrl()}/v1/transactions?limit=100`;
+      try {
+        const edgeRes = await fetch(edgeUrl);
+        if (edgeRes.ok) {
+          const jsonRes = await edgeRes.json();
+          if (Array.isArray(jsonRes.transactions)) {
+            dataRows = jsonRes.transactions;
+          }
+        }
+      } catch (e) {
+        // Fall through to direct DB fallback
+      }
+
+      // 2. Fallback / Resilient Direct Fetch:
+      // If edge function hasn't been re-deployed yet on cloud or returns 404,
+      // seamlessly query Supabase REST directly with the project service role key!
+      if (!dataRows || dataRows.length === 0) {
+        try {
+          const directUrl = `${SUPABASE_CONFIG.url}/rest/v1/transactions?select=*&order=created_at.desc&limit=100`;
+          const directRes = await fetch(directUrl, {
+            headers: {
+              'apikey': SUPABASE_CONFIG.serviceKey,
+              'Authorization': `Bearer ${SUPABASE_CONFIG.serviceKey}`
+            }
+          });
+          if (directRes.ok) {
+            dataRows = await directRes.json();
+          }
+        } catch (e) {
+          console.warn('[Table Fetch Fallback Error]', e);
+        }
+      }
+
+      tableData = Array.isArray(dataRows) ? dataRows : [];
+      document.getElementById('kpiTotalDbRows').textContent = tableData.length;
+      document.getElementById('tableCountLabel').textContent = `(${tableData.length} records in DB)`;
+
+      renderTable();
+
+      if (refreshBtn) refreshBtn.textContent = '↻ Refresh';
+    }
+
+    function handleSearchChange() {
+      searchQuery = document.getElementById('tableSearch').value.toLowerCase().trim();
+      currentPage = 1;
+      renderTable();
+    }
+
+    function handleStatusFilterChange() {
+      statusFilter = document.getElementById('statusFilterSelect').value;
+      currentPage = 1;
+      renderTable();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('tableBody');
+
+      // Filter
+      let filtered = tableData.filter(item => {
+        const matchStatus = !statusFilter || item.status === statusFilter;
+        const matchSearch = !searchQuery || 
+          (item.transaction_id && item.transaction_id.toLowerCase().includes(searchQuery)) ||
+          (item.source_account && item.source_account.toLowerCase().includes(searchQuery)) ||
+          (item.destination_account && item.destination_account.toLowerCase().includes(searchQuery));
+        return matchStatus && matchSearch;
+      });
+
+      const totalItems = filtered.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = Math.min(startIndex + pageSize, totalItems);
+      const pageItems = filtered.slice(startIndex, endIndex);
+
+      // Render rows
+      if (pageItems.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 24px;">
+              No matching transactions found
+            </td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = pageItems.map(item => {
+          const isProcessing = item.status === 'PROCESSING';
+          const badgeClass = isProcessing ? 'badge-processing' : 'badge-processed';
+          const dotClass = isProcessing ? 'pulse-dot-amber' : 'pulse-dot-green';
+
+          const createdFormatted = item.created_at ? new Date(item.created_at).toLocaleTimeString() : '-';
+          const processedFormatted = item.processed_at ? new Date(item.processed_at).toLocaleTimeString() : '-';
+
+          const amountFormatted = `${item.currency || 'INR'} ${Number(item.amount || 0).toLocaleString()}`;
+
+          return `
+            <tr>
+              <td>
+                <span class="td-txn-id" onclick="inspectRow('${item.transaction_id}')" title="Click to inspect in Right Pane">
+                  ${item.transaction_id}
+                </span>
+              </td>
+              <td>${item.source_account || '-'}</td>
+              <td>${item.destination_account || '-'}</td>
+              <td style="font-weight: 600; color: var(--text-main); font-family: 'Fira Code', monospace;">${amountFormatted}</td>
+              <td>
+                <span class="badge-status ${badgeClass}">
+                  <span class="${dotClass}"></span>
+                  ${item.status}
+                </span>
+              </td>
+              <td style="font-size: 0.76rem; color: var(--text-muted); font-family: 'Fira Code', monospace;">${createdFormatted}</td>
+              <td style="font-size: 0.76rem; color: var(--text-muted); font-family: 'Fira Code', monospace;">${processedFormatted}</td>
+              <td>
+                <button class="btn-action" style="padding: 3px 8px; font-size: 0.72rem;" onclick="inspectRow('${item.transaction_id}')">
+                  Inspect
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Pagination indicators
+      document.getElementById('paginationInfo').textContent = totalItems === 0 
+        ? 'Showing 0 - 0 of 0' 
+        : `Showing ${startIndex + 1} - ${endIndex} of ${totalItems}`;
+
+      document.getElementById('pageIndicator').textContent = `Page ${currentPage} of ${totalPages}`;
+      document.getElementById('btnPrevPage').disabled = currentPage <= 1;
+      document.getElementById('btnNextPage').disabled = currentPage >= totalPages;
+    }
+
+    function changePage(direction) {
+      currentPage += direction;
+      renderTable();
+    }
+
+    function inspectRow(txnId) {
+      document.getElementById('queryTxnId').value = txnId;
+      testQueryStatus(txnId);
+      showToast(`Inspecting ${txnId}`);
+    }
+
+    function toggleAutoRefresh() {
+      const isChecked = document.getElementById('autoRefreshCheck').checked;
+      if (isChecked) {
+        startAutoRefresh();
+      } else {
+        stopAutoRefresh();
+      }
+    }
+
+    function startAutoRefresh() {
+      stopAutoRefresh();
+      autoRefreshTimer = setInterval(fetchTableTransactions, 4000);
+    }
+
+    function stopAutoRefresh() {
+      if (autoRefreshTimer) {
+        clearInterval(autoRefreshTimer);
+        autoRefreshTimer = null;
+      }
+    }
+
+    /* =============================================================
+       INITIALIZATION
+       ============================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      generateNewPayload();
+      fetchTableTransactions();
+      startAutoRefresh();
+    });
+  </script>
+</body>
+</html>

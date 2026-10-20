@@ -12,6 +12,8 @@ The service receives transaction webhooks from payment processors (e.g. Razorpay
 * **Health Check:** `GET https://oehnlycyvucimchrtivh.supabase.co/functions/v1/api`
 * **Webhook Endpoint:** `POST https://oehnlycyvucimchrtivh.supabase.co/functions/v1/api/v1/webhooks/transactions`
 * **Query Endpoint:** `GET https://oehnlycyvucimchrtivh.supabase.co/functions/v1/api/v1/transactions/{transaction_id}`
+* **List Transactions:** `GET https://oehnlycyvucimchrtivh.supabase.co/functions/v1/api/v1/transactions`
+* **Interactive UI Console:** Open `index.html` in any browser or run `npm start` (minimal light-mode dashboard)
 
 ---
 

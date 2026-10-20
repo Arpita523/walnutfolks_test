@@ -136,7 +136,47 @@ Deno.serve(async (req) => {
     }
   }
 
-  // 3. QUERY TRANSACTION STATUS: GET /v1/transactions/:transaction_id
+  // 3. LIST ALL TRANSACTIONS: GET /v1/transactions
+  const isListTransactions = req.method === 'GET' && (pathname.endsWith('/transactions') || pathname.endsWith('/transactions/'))
+  if (isListTransactions) {
+    const urlParams = url.searchParams
+    const limit = Math.min(Math.max(parseInt(urlParams.get('limit') || '25', 10), 1), 100)
+    const page = Math.max(parseInt(urlParams.get('page') || '1', 10), 1)
+    const offset = (page - 1) * limit
+    const statusFilter = urlParams.get('status')
+    const search = urlParams.get('search')
+
+    let query = supabase
+      .from('transactions')
+      .select('transaction_id, source_account, destination_account, amount, currency, status, created_at, processed_at', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
+
+    if (statusFilter && (statusFilter === 'PROCESSING' || statusFilter === 'PROCESSED')) {
+      query = query.eq('status', statusFilter)
+    }
+
+    if (search) {
+      query = query.or(`transaction_id.ilike.%${search}%,source_account.ilike.%${search}%,destination_account.ilike.%${search}%`)
+    }
+
+    const { data: txList, count, error } = await query
+
+    if (error) {
+      console.error('[List Error]', error.message)
+      return json({ error: 'Database list query failed', details: error.message }, 500)
+    }
+
+    return json({
+      total: count ?? (txList?.length || 0),
+      page,
+      limit,
+      total_pages: Math.ceil((count ?? 0) / limit) || 1,
+      transactions: txList || []
+    }, 200)
+  }
+
+  // 4. QUERY TRANSACTION STATUS: GET /v1/transactions/:transaction_id
   if (req.method === 'GET' && pathname.includes('/transactions/')) {
     const segments = pathname.split('/').filter(Boolean)
     const transactionId = segments[segments.length - 1]
