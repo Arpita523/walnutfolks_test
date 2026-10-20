@@ -997,12 +997,23 @@
       </div>
     </header>
 
-    <!-- CONFIG / BASE URL BAR -->
+    <!-- CONFIG / BASE URL & API KEY BAR -->
     <div class="config-strip">
-      <label for="baseUrlInput">Edge Function Base URL:</label>
-      <input type="text" id="baseUrlInput" class="config-input" value="https://oehnlycyvucimchrtivh.supabase.co/functions/v1/api" />
-      <button class="btn-chip" onclick="setBaseUrl('https://oehnlycyvucimchrtivh.supabase.co/functions/v1/api')">Cloud Edge</button>
-      <button class="btn-chip" onclick="setBaseUrl('http://127.0.0.1:54321/functions/v1/api')">Localhost</button>
+      <div style="display: flex; align-items: center; gap: 8px; flex: 1.2; flex-wrap: wrap;">
+        <label for="baseUrlInput">Edge Base URL:</label>
+        <input type="text" id="baseUrlInput" class="config-input" style="min-width: 240px;" value="https://oehnlycyvucimchrtivh.supabase.co/functions/v1/api" />
+        <button class="btn-chip" onclick="setBaseUrl('https://oehnlycyvucimchrtivh.supabase.co/functions/v1/api')">Cloud Edge</button>
+        <button class="btn-chip" onclick="setBaseUrl('http://127.0.0.1:54321/functions/v1/api')">Localhost</button>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 8px; flex: 1; flex-wrap: wrap; border-left: 1px solid var(--border); padding-left: 12px;">
+        <label for="apiKeyInput" title="Your Supabase Project API Key (anon or service_role)">🔑 API Key:</label>
+        <div style="display: flex; align-items: center; flex: 1; min-width: 200px; position: relative;">
+          <input type="password" id="apiKeyInput" class="config-input" placeholder="Paste Supabase anon or service_role key..." style="padding-right: 32px;" oninput="onApiKeyInput()" />
+          <span onclick="toggleApiKeyVisibility()" id="toggleKeyIcon" style="position: absolute; right: 10px; cursor: pointer; font-size: 0.85rem; user-select: none;" title="Show/Hide Key">👁️</span>
+        </div>
+        <button class="btn-chip" onclick="saveApiKeyBtn()" style="background: var(--accent); color: #fff; border-color: var(--accent);">Save Key</button>
+      </div>
     </div>
 
     <!-- 1. TOP 4 STATS CARDS -->

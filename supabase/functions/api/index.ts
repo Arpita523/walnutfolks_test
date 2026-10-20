@@ -20,10 +20,24 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
 }
 
-// Global Supabase client (reused across warm requests for optimal performance)
-const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
-const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-const supabase = createClient(supabaseUrl, supabaseKey)
+// Global Supabase configuration
+const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? 'https://oehnlycyvucimchrtivh.supabase.co'
+const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  ?? Deno.env.get('SUPABASE_ANON_KEY')
+  ?? Deno.env.get('SUPABASE_PUBLISHABLE_KEY')
+  ?? 'sb_publishable_n7AOgwawMDJR7Uv77Hiuzg_2b_4d7YN'
+
+// Default server-side Supabase client instance
+const defaultSupabase = createClient(supabaseUrl, supabaseKey)
+
+// Helper to resolve Supabase client (supports optional client-supplied keys without breaking on invalid secrets)
+function getSupabaseClient(req?: Request) {
+  const reqKey = req?.headers.get('apikey') || req?.headers.get('authorization')?.replace(/^Bearer\s+/i, '').trim()
+  if (reqKey && reqKey !== 'SUPABASE_PUBLISHABLE_KEY' && !reqKey.startsWith('sb_secret_')) {
+    return createClient(supabaseUrl, reqKey)
+  }
+  return defaultSupabase
+}
 
 // Helper for consistent JSON responses
 const json = (data: unknown, status = 200) =>
@@ -37,6 +51,9 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
+
+  // Authenticated Supabase client instance for this request
+  const supabase = getSupabaseClient(req)
 
   const url = new URL(req.url)
   const pathname = url.pathname
